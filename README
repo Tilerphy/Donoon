@@ -1,0 +1,20 @@
+比如一个1024M的文件， 整体摘要一下得到： file_digest
+然后把内容分割成16个64MB的block，每一块都摘要一下，最后把这些[block+file_digest+block_digest]分散到各个数据节点
+存储位置是以block_digest结果比如 D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35 来自然索引的。
+假如存在id是0 1 2 3的四个数据节点，那么D*************************这个block就存储到了 DEC(D) mod 4的节点上。
+
+
+考虑到扩展，增加一个新的数据节点对旧数据的标识影响
+假如一个 block  D4735E3A265E存储到了 id_1 的机器。 现在数据节点扩展到5个， 再去寻找DEC(D) mod 5 的时候应该找到id_3。 
+解决这个问题只需要做一次溯源即可，存储文件的时候不是有个file_digest么，给他累加一个数据： 当时的节点数。 这样就可以进行溯源了。
+
+
+
+
+那么数据块就是： [block + file_digest + block_digest]
+存储后的虚拟path是: /[当时节点数]/file_digest
+file_digest内容是: [block_digest, block_digest, block_digest, block_digest, block_digest, block_digest, block_digest, block_digest]
+
+那么数据块就是： [block + file_digest + block_digest]
+存储后的虚拟path是: /[当时节点数]+replicationNumber/file_digest
+file_digest内容是: [block_digest, block_digest, block_digest, block_digest, block_digest, block_digest, block_digest, block_digest]
